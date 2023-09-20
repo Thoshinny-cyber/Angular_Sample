@@ -21,7 +21,7 @@ pipeline{
             steps {
                 sh 'tar czf Angular.tar.gz *'
             }
-        }
+        //}
 post{
     always{
         def changeLog = checkout(
@@ -100,6 +100,7 @@ post{
     }
     }
 }
+          }
  
 
 //         stage('Docker Build'){
