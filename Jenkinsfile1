@@ -21,42 +21,11 @@ pipeline{
             steps {
                 sh 'tar czf Angular.tar.gz *'
             }
-            def changeLog = checkout(
-            poll: false,
-            scm: [$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]]]
-    )
-    
-    // Send an email notification to the manager with the changelog as an attachment
-    emailext (
-        subject: "Approval Required for Build - ${currentBuild.displayName}",
-        body: """
-        Commit ID: ${env.GIT_COMMIT}
-        Source Path: ${env.WORKSPACE}
-        Author: ${env.BUILD_USER}
-        Date: ${env.BUILD_TIMESTAMP}
-        Branch: ${env.BRANCH_NAME}
-        Build Status: ${currentBuild.result}
+        }
 
-        Please review and approve or reject this build.
-        To approve, reply to this email with 'APPROVE' in the subject.
-        To reject, reply to this email with 'REJECT' in the subject.
-        """,
-        mimeType: 'text/plain',
-        to: 'thoshlearn@gmail.com', // Manager's email address
-        attachmentsPattern: "${changeLog}/changelog.txt", // Attach the changelog as an text file
-        attachBuildLog: true // Attach the build log
-    )
+ 
 
-    // Wait for manager approval
-    try {
-        input message: 'Waiting for Manager Approval', submitter: 'thoshlearn@gmail.com'
-    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
-        // Handle approval or rejection
-        if (e.causes.any { it instanceof hudson.model.Cause$UserIdCause }) {
-            echo "Build approved by manager"
-
-            // Proceed to the next stage after approval
-            stage('Docker Build'){
+        stage('Docker Build'){
     steps{
         sh "echo ${DOCKER_TAG}"
         sshPublisher(publishers: [
@@ -89,49 +58,6 @@ pipeline{
         ])
     }
 }
-
-            
-        } else {
-            error "Build rejected by manager"
-        }
-    }
-        }
-
- 
-
-//         stage('Docker Build'){
-//     steps{
-//         sh "echo ${DOCKER_TAG}"
-//         sshPublisher(publishers: [
-//             sshPublisherDesc(
-//                 configName: 'dockerhost',
-//                 transfers: [
-//                     sshTransfer(
-//                         cleanRemote: false,
-//                         excludes: '',
-//                         execCommand: """cd /opt/docker1; 
-//                                         tar -xf Angular.tar.gz; 
-//                                         docker build . -t thoshinny/angularapp:${DOCKER_TAG}
-//                                         docker push thoshinny/angularapp:${DOCKER_TAG}
-//                                         """,
-//                         execTimeout: 200000,
-//                         flatten: false,
-//                         makeEmptyDirs: false,
-//                         noDefaultExcludes: false,
-//                         patternSeparator: '[, ]+$',
-//                         remoteDirectory: '//opt//docker1',
-//                         remoteDirectorySDF: false,
-//                         removePrefix: '',
-//                         sourceFiles: '**/*.gz'
-//                     )
-//                 ],
-//                 usePromotionTimestamp: false,
-//                 useWorkspaceInPromotion: false,
-//                 verbose: true
-//             )
-//         ])
-//     }
-// }
 
         stage('Docker Deploy') {
             steps {
@@ -198,6 +124,33 @@ pipeline{
  
 
     }
+
+ 
+
+post {
+    always {
+
+        emailext(
+           body: """
+               Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
+                SCM revision: ${env.GIT_COMMIT}
+                Docker tag: ${env.DOCKER_TAG}
+            """,
+            subject: "Build ${env.JOB_NAME} ${env.BUILD_NUMBER} completed",
+            to: "thoshlearn@gmail.com",
+            // recipientProviders: [developers()],
+            mimeType: 'text/html',
+
+        )  
+
+ 
+
+    }
+}
+
+ 
+
+ 
 
 }
 
