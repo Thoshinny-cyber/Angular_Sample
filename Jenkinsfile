@@ -71,7 +71,7 @@ pipeline{
                                         docker build . -t thoshinny/angularapp:${DOCKER_TAG}
                                         docker push thoshinny/angularapp:${DOCKER_TAG}
                                         """,
-                        execTimeout: 200000,
+                        execTimeout: 200000000,
                         flatten: false,
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
