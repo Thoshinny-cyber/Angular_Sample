@@ -51,7 +51,7 @@ pipeline{
                 }
             }
         }
-    }
+   // }
 
     post {
         always {
@@ -92,7 +92,7 @@ pipeline{
             }
         }
     }
-}
+
           
 
 //         stage('Docker Build'){
@@ -193,7 +193,7 @@ pipeline{
 
  
 
-    }
+}
 
 }
 
