@@ -20,7 +20,11 @@ pipeline{
           stage('Build') {
             steps {
                 sh 'tar czf Angular.tar.gz *'
-            def changeLog = checkout(
+            }
+        }
+post{
+    always{
+        def changeLog = checkout(
             poll: false,
             scm: [$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]]]
     )
@@ -94,9 +98,8 @@ pipeline{
             error "Build rejected by manager"
         }
     }
-            }
-        }
-
+    }
+}
  
 
 //         stage('Docker Build'){
