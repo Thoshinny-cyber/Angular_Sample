@@ -21,48 +21,46 @@ pipeline{
             steps {
                 sh 'tar czf Angular.tar.gz *'
             }
-        //}
-post{
-    always{
-        def changeLog = checkout(
-            poll: false,
-            scm: [$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]]]
-    )
-    
-    // Send an email notification to the manager with the changelog as an attachment
-    emailext (
-        subject: "Approval Required for Build - ${currentBuild.displayName}",
-        body: """
-        Commit ID: ${env.GIT_COMMIT}
-        Source Path: ${env.WORKSPACE}
-        Author: ${env.BUILD_USER}
-        Date: ${env.BUILD_TIMESTAMP}
-        Branch: ${env.BRANCH_NAME}
-        Build Status: ${currentBuild.result}
+        }
+        stage('Approval') {
+            steps {
+                // Send an email notification to the manager for approval
+                emailext (
+                    subject: "Approval Required for Build - ${currentBuild.displayName}",
+                    body: """
+                    Commit ID: ${env.GIT_COMMIT}
+                    Source Path: ${env.WORKSPACE}
+                    Author: ${env.BUILD_USER}
+                    Date: ${env.BUILD_TIMESTAMP}
+                    Branch: ${env.BRANCH_NAME}
+                    Build Status: ${currentBuild.result}
 
-        Please review and approve or reject this build.
-        To approve, reply to this email with 'APPROVE' in the subject.
-        To reject, reply to this email with 'REJECT' in the subject.
-        """,
-        mimeType: 'text/plain',
-        to: 'thoshlearn@gmail.com', // Manager's email address
-        attachmentsPattern: "${changeLog}/changelog.txt", // Attach the changelog as an text file
-        attachBuildLog: true // Attach the build log
-    )
+                    Please review and approve or reject this build.
+                    To approve, reply to this email with 'APPROVE' in the subject.
+                    To reject, reply to this email with 'REJECT' in the subject.
+                    """,
+                    mimeType: 'text/plain',
+                    to: 'thoshlearn@gmail.com', // Manager's email address
+                    attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
+                    attachLog: true // Attach the build log
+                )
 
-    // Wait for manager approval
-    try {
-        input message: 'Waiting for Manager Approval', submitter: 'thoshlearn@gmail.com'
-    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
-        // Handle approval or rejection
-        if (e.causes.any { it instanceof hudson.model.Cause$UserIdCause }) {
-            echo "Build approved by manager"
+                // Wait for manager approval
+                timeout(time: 30, unit: 'MINUTES') {
+                    input message: 'Waiting for Manager Approval', submitter: 'thoshlearn@gmail.com'
+                }
+            }
+        }
+    }
 
-            // Proceed to the next stage after approval
-            stage('Docker Build'){
-    steps{
-        sh "echo ${DOCKER_TAG}"
-        sshPublisher(publishers: [
+    post {
+        always {
+            // Proceed with Docker Build stage or other actions after approval
+            stage('Docker Build') {
+                steps {
+                    sh "echo ${DOCKER_TAG}"
+                    // Add your Docker build and push steps here
+                            sshPublisher(publishers: [
             sshPublisherDesc(
                 configName: 'dockerhost',
                 transfers: [
@@ -74,7 +72,7 @@ post{
                                         docker build . -t thoshinny/angularapp:${DOCKER_TAG}
                                         docker push thoshinny/angularapp:${DOCKER_TAG}
                                         """,
-                        execTimeout: 200000000,
+                        execTimeout: 200000,
                         flatten: false,
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
@@ -90,18 +88,12 @@ post{
                 verbose: true
             )
         ])
-    }
-}
-
-            
-        } else {
-            error "Build rejected by manager"
+            }
+            }
         }
     }
-    }
 }
-          }
- 
+          
 
 //         stage('Docker Build'){
 //     steps{
