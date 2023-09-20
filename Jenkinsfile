@@ -28,12 +28,9 @@ pipeline{
                 emailext (
                     subject: "Approval Required for Build - ${currentBuild.displayName}",
                     body: """
-                    Commit ID: ${env.GIT_COMMIT}
-                    Source Path: ${env.WORKSPACE}
-                    Author: ${env.BUILD_USER}
-                    Date: ${env.BUILD_TIMESTAMP}
-                    Branch: ${env.BRANCH_NAME}
-                    Build Status: ${currentBuild.result}
+                    Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
+                    SCM revision: ${env.GIT_COMMIT}
+                    Docker tag: ${env.DOCKER_TAG}
 
                     Please review and approve or reject this build.
                     To approve, reply to this email with 'APPROVE' in the subject.
@@ -41,12 +38,12 @@ pipeline{
                     """,
                     mimeType: 'text/plain',
                     to: 'thoshlearn@gmail.com', // Manager's email address
-                    attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
+                    //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
                     attachLog: true // Attach the build log
                 )
 
                 // Wait for manager approval
-                timeout(time: 30, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     input message: 'Waiting for Manager Approval', submitter: 'thoshlearn@gmail.com'
                 }
             }
