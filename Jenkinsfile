@@ -53,8 +53,8 @@ pipeline{
         }
    // }
 
-    post {
-        always {
+   // post {
+       // always {
             // Proceed with Docker Build stage or other actions after approval
             stage('Docker Build') {
                 steps {
@@ -90,8 +90,8 @@ pipeline{
         ])
             }
             }
-        }
-    }
+        //}
+    //}
 
           
 
