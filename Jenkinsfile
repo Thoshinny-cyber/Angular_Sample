@@ -48,14 +48,9 @@ pipeline{
                 )
 
                 // Wait for manager approval
-                timeout(time: 1, unit: 'HOURS') {
-                        def approvalResponse = waitForEmailApproval(mailSubject)
-                        if (approvalResponse == 'APPROVE') {
-                            echo "Build approved by manager"
-                            // Proceed to the next stage after approval
-                        } else {
-                            error "Build rejected by manager"
-                        }
+                timeout(time: 10, unit: 'MINUTES') {
+                    input message: 'Waiting for Manager Approval', submitter: 'thoshlearn@gmail.com'
+                }
                     }
             }
         }
@@ -215,20 +210,20 @@ def getVersion(){
 }
 
 // Function to wait for manager's approval email
-def waitForEmailApproval(mailSubject) {
-    def approvalTimeout = 60 * 60  
-    def startTime = System.currentTimeMillis()
-    while (System.currentTimeMillis() - startTime < approvalTimeout) {
-        def mail = emailextFindLastMail(subject: mailSubject)
-        if (mail) {
-            def emailBody = mail.getContentType() == 'text/html' ? mail.getContent().toString() : mail.getContent().text
-            if (emailBody.contains('APPROVE')) {
-                return 'APPROVE'
-            } else if (emailBody.contains('REJECT')) {
-                return 'REJECT'
-            }
-        }
-        sleep(60000) // Sleep for 1 minute before checking again
-    }
-    return 'TIMEOUT'
-}
+// def waitForEmailApproval(mailSubject) {
+//     def approvalTimeout = 60 * 60  
+//     def startTime = System.currentTimeMillis()
+//     while (System.currentTimeMillis() - startTime < approvalTimeout) {
+//         def mail = emailextFindLastMail(subject: mailSubject)
+//         if (mail) {
+//             def emailBody = mail.getContentType() == 'text/html' ? mail.getContent().toString() : mail.getContent().text
+//             if (emailBody.contains('APPROVE')) {
+//                 return 'APPROVE'
+//             } else if (emailBody.contains('REJECT')) {
+//                 return 'REJECT'
+//             }
+//         }
+//         sleep(60000) // Sleep for 1 minute before checking again
+//     }
+//     return 'TIMEOUT'
+// }
