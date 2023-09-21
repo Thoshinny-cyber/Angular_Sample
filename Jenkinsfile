@@ -44,7 +44,7 @@ pipeline{
                     to: 'thoshlearn@gmail.com', // Manager's email address
                     //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
                     attachLog: true, // Attach the build log
-                    replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
+                   // replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
                 )
 
                 // Wait for manager approval
