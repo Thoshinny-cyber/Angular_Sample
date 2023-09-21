@@ -25,9 +25,8 @@ pipeline{
         stage('Approval') {
             steps {
                 // Send an email notification to the manager for approval
-                emailext (
-                    subject: "Approval Required for Build - ${currentBuild.displayName}",
-                    body: """
+               script{
+                 def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
                     SCM revision: ${env.GIT_COMMIT}
                     Docker tag: ${env.DOCKER_TAG}
@@ -35,11 +34,17 @@ pipeline{
                     Please review and approve or reject this build.
                     To approve, reply to this email with 'APPROVE' in the subject.
                     To reject, reply to this email with 'REJECT' in the subject.
-                    """,
+                    """
+                 def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
+                
+                emailext (
+                    subject: mailSubject
+                    body: approvalMail,
                     mimeType: 'text/plain',
                     to: 'thoshlearn@gmail.com', // Manager's email address
                     //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
                     attachLog: true // Attach the build log
+                    replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
                 )
 
                 // Wait for manager approval
@@ -201,4 +206,23 @@ pipeline{
 def getVersion(){
     def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
+}
+
+// Function to wait for manager's approval email
+def waitForEmailApproval(mailSubject) {
+    def approvalTimeout = 60 * 60  
+    def startTime = System.currentTimeMillis()
+    while (System.currentTimeMillis() - startTime < approvalTimeout) {
+        def mail = emailextFindLastMail(subject: mailSubject)
+        if (mail) {
+            def emailBody = mail.getContentType() == 'text/html' ? mail.getContent().toString() : mail.getContent().text
+            if (emailBody.contains('APPROVE')) {
+                return 'APPROVE'
+            } else if (emailBody.contains('REJECT')) {
+                return 'REJECT'
+            }
+        }
+        sleep(60000) // Sleep for 1 minute before checking again
+    }
+    return 'TIMEOUT'
 }
