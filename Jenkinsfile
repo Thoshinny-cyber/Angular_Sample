@@ -48,12 +48,18 @@ pipeline{
                 )
 
                 // Wait for manager approval
-                timeout(time: 10, unit: 'MINUTES') {
-                    input message: 'Waiting for Manager Approval', submitter: 'thoshlearn@gmail.com'
-                }
+                timeout(time: 1, unit: 'HOURS') {
+                        def approvalResponse = waitForEmailApproval(mailSubject)
+                        if (approvalResponse == 'APPROVE') {
+                            echo "Build approved by manager"
+                            // Proceed to the next stage after approval
+                        } else {
+                            error "Build rejected by manager"
+                        }
+                    }
             }
         }
-   // }
+    }
 
    // post {
        // always {
