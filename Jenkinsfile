@@ -44,7 +44,7 @@ pipeline{
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
                  def gitDiffOutput = sh(script: """git diff ${currentCommit}""", returnStdout: true).trim()
                  writeFile(file: 'changelog.txt', text: gitDiffOutput)
-                 echo "Git Diff Command: git diff ${currentCommit}"
+                 echo "${gitDiffOutput}"
         
  
                 
