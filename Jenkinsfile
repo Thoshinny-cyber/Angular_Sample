@@ -28,8 +28,11 @@ pipeline{
                script{
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
-                    SCM revision: ${env.GIT_COMMIT}
+                    Commit ID: ${env.GIT_COMMIT}
                     Docker tag: ${env.DOCKER_TAG}
+                    Source Path: ${env.WORKSPACE}
+                    Author: ${env.BUILD_USER}
+                    Date: ${env.BUILD_TIMESTAMP}
 
                     Please review and approve or reject this build.
                     To approve, reply to this email with 'APPROVE' in the subject.
