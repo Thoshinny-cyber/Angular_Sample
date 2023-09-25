@@ -26,6 +26,7 @@ pipeline{
             steps {
                 // Send an email notification to the manager for approval
                script{
+                 def attachement = sh 'git log --pretty=format:"%h - %an, %ar : %s" > changelog.txt'
                  def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
@@ -44,9 +45,10 @@ pipeline{
                     subject: mailSubject,
                     body: approvalMail,
                     mimeType: 'text/plain',
-                    to: 'thoshlearn@gmail.com', // Manager's email address
+                    to: 'thoshlearn@gmail.com',
+                    attachmentsPattern: attachment
                     //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
-                    attachLog: true, // Attach the build log
+                    //attachLog: true, // Attach the build log
                    // replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
                 )
 
