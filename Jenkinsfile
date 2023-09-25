@@ -26,11 +26,13 @@ pipeline{
             steps {
                 // Send an email notification to the manager for approval
                script{
-                 
+                 def previousCommit = sh(returnStdout: true, script: 'git rev-parse HEAD~1')
+                 def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
                  def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
                     Commit ID: ${env.GIT_COMMIT}
+                    Previous Commit ID: ${previousCommit}
                     Docker tag: ${env.DOCKER_TAG}
                     Source Path: ${env.WORKSPACE}
                     Author: ${authorEmail}
@@ -40,7 +42,7 @@ pipeline{
                     BUILD URL: ${env.BUILD_URL}
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
-                 sh 'git log --pretty=format:"%h - %an, %ar : %s" > changelog.txt'
+                 sh 'git log --pretty=format:"%h" ${previousCommit}..${currentCommit} | xargs -I % git show --stat % > changelog.txt'
                 
                 emailext (
                     subject: mailSubject,
