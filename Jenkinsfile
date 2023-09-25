@@ -42,7 +42,11 @@ pipeline{
                     BUILD URL: ${env.BUILD_URL}
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
-                 sh 'git log --pretty=format:"%h" ${previousCommit}..${currentCommit} | xargs -I % git show --stat % > changelog.txt'
+                 def changes = sh(
+                 returnStdout: true,
+                 script: """ git log --pretty=format:"%h" ${previousCommit}..${currentCommit} | xargs -I % git show --stat % """
+                 )
+                  writeFile file: 'changelog.txt', text: changes
                 
                 emailext (
                     subject: mailSubject,
