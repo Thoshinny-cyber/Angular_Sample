@@ -26,12 +26,13 @@ pipeline{
             steps {
                 // Send an email notification to the manager for approval
                script{
+                 def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
                     Commit ID: ${env.GIT_COMMIT}
                     Docker tag: ${env.DOCKER_TAG}
                     Source Path: ${env.WORKSPACE}
-                    Author: ${env.BUILD_USER}
+                    Author: ${authorEmail}
                     Date: ${env.BUILD_TIMESTAMP}
 
                     Please review and approve or reject this build.
