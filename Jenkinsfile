@@ -44,7 +44,7 @@ pipeline{
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
                  def changes = sh(
                  returnStdout: true,
-                 script: """ git log --pretty=format:"%h" ${previousCommit}..${currentCommit} | xargs -I % git show --stat % """
+                 script: """ git diff ${previousCommit} ${currentCommit} """
                  )
                   writeFile file: 'changelog.txt', text: changes
                 
