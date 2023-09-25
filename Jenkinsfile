@@ -26,7 +26,7 @@ pipeline{
             steps {
                 // Send an email notification to the manager for approval
                script{
-                 def attachment = sh 'git log --pretty=format:"%h - %an, %ar : %s" > changelog.txt'
+                 
                  def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
@@ -40,13 +40,14 @@ pipeline{
                     BUILD URL: ${env.BUILD_URL}
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
+                 sh 'git log --pretty=format:"%h - %an, %ar : %s" > changelog.txt'
                 
                 emailext (
                     subject: mailSubject,
                     body: approvalMail,
                     mimeType: 'text/plain',
                     to: 'thoshlearn@gmail.com',
-                    attachmentsPattern: attachment
+                    attachmentsPattern: 'changelog.txt'
                     //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
                     //attachLog: true, // Attach the build log
                    // replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
