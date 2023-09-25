@@ -26,7 +26,7 @@ pipeline{
             steps {
                 // Send an email notification to the manager for approval
                script{
-                 def attachement = sh 'git log --pretty=format:"%h - %an, %ar : %s" > changelog.txt'
+                 def attachment = sh 'git log --pretty=format:"%h - %an, %ar : %s" > changelog.txt'
                  def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
