@@ -42,7 +42,7 @@ pipeline{
                     BUILD URL: ${env.BUILD_URL}
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
-                 def gitDiffOutput = sh(script: """git diff ${currentCommit}""" writeFile(file: 'changelog.txt', text: gitDiffOutput), returnStdout: true).trim()
+                 def gitDiffOutput = sh(script: "git diff ${previousCommit} ${currentCommit}", returnStdout: true).trim()
                  echo "${gitDiffOutput}"
         
  
