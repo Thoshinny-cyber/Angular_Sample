@@ -34,7 +34,7 @@ pipeline{
                     Source Path: ${env.WORKSPACE}
                     Author: ${authorEmail}
                     Date: ${env.BUILD_TIMESTAMP}
-
+                    Build Result: ${currentBuild.result}
                     Please review and approve or reject this build.
                     BUILD URL: ${env.BUILD_URL}
                     """
