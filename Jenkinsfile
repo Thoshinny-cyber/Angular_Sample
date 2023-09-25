@@ -36,8 +36,7 @@ pipeline{
                     Date: ${env.BUILD_TIMESTAMP}
 
                     Please review and approve or reject this build.
-                    To approve, reply to this email with 'APPROVE' in the subject.
-                    To reject, reply to this email with 'REJECT' in the subject.
+                    BUILD URL: ${env.BUILD_URL}
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
                 
