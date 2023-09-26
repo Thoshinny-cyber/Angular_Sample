@@ -47,8 +47,9 @@ pipeline{
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
                  def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
-                 writeFile(file: 'changelog.txt', text: changes)
-               //  writeFile(file: 'changelog.txt', text: gitDiffOutput)
+// Combine 'changes' and 'gitDiffOutput' and write to 'changelog.txt'
+                 def combinedContent = changes + "\n\n" + gitDiffOutput
+                 writeFile(file: 'changelog.txt', text: combinedContent)
                 if (gitDiffOutput.isEmpty()) {
                 error("No changes found between commits.")
             }
