@@ -226,7 +226,7 @@ def getVersion(){
     return commitHash
 }
 def previousHash(){
-  def prev = sh returnStdout: true, script: 'git rev-parse --short HEAD~1'
+  def prev = sh(returnStdout: true, script: '/path/to/git rev-parse --short HEAD~1', returnStatus: true).trim()
   if (prev != 0) {
         error("Failed to get previous commit hash. Exit code: ${prev}")
     }
