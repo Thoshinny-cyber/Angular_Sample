@@ -22,56 +22,7 @@ pipeline{
                 sh 'tar czf Angular.tar.gz *'
             }
         }
-        stage('Approval') {
-            steps {
-                // Send an email notification to the manager for approval
-               script{
-                 def previousCommit = sh(returnStdout: true, script: 'git rev-parse HEAD~1')
-            //       if (previousCommit != 0) {
-            //     error("Failed to get previous commit hash.")
-            // }
-                 def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
-                 def changes =  sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
-                 def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
-                 def approvalMail = """
-                    Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
-                    Commit ID: ${env.GIT_COMMIT}
-                    Previous Commit ID: ${previousCommit}
-                    Docker tag: ${env.DOCKER_TAG}
-                    Source Path: ${env.WORKSPACE}
-                    Author: ${authorEmail}
-                    Date: ${env.BUILD_TIMESTAMP}
-                    Build Result: ${currentBuild.result}
-                    Please review and approve or reject this build.
-                    BUILD URL: ${env.BUILD_URL}
-                    """
-                 def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
-                 def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
-// Combine 'changes' and 'gitDiffOutput' and write to 'changelog.txt'
-                 def combinedContent = changes + "\n\n" + gitDiffOutput
-                 writeFile(file: 'changelog.txt', text: combinedContent)
-                if (gitDiffOutput.isEmpty()) {
-                error("No changes found between commits.")
-            }
-                
-                emailext (
-                    subject: mailSubject,
-                    body: approvalMail,
-                    mimeType: 'text/plain',
-                    to: 'thoshlearn@gmail.com',
-                    attachmentsPattern: 'changelog.txt'
-                    //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
-                    //attachLog: true, // Attach the build log
-                   // replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
-                )
-
-                // Wait for manager approval
-                timeout(time: 10, unit: 'MINUTES') {
-                    input message: 'Waiting for Manager Approval'
-                }
-                    }
-            }
-        }
+        
    // }
 
    // post {
@@ -113,7 +64,56 @@ pipeline{
             }
         //}
     //}
+stage('Approval') {
+            steps {
+                // Send an email notification to the manager for approval
+               script{
+                 def previousCommit = sh(returnStdout: true, script: 'git rev-parse HEAD~1')
+            //       if (previousCommit != 0) {
+            //     error("Failed to get previous commit hash.")
+            // }
+                 def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+                 def changes =  sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
+                 def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
+                 def approvalMail = """
+                    Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
+                    Commit ID: ${env.GIT_COMMIT}
+                    Previous Commit ID: ${previousCommit}
+                    Docker tag: ${env.DOCKER_TAG}
+                    Source Path: ${env.WORKSPACE}
+                    Author: ${authorEmail}
+                    Date: ${env.BUILD_TIMESTAMP}
+                    Build Result: ${currentBuild.result}
+                    Please review and approve or reject this build.
+                    BUILD URL: ${env.BUILD_URL}
+                    """
+                 def mailSubject =  "Approval Required for Docker Deployment - ${currentBuild.displayName}"
+                 def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
+// Combine 'changes' and 'gitDiffOutput' and write to 'changelog.txt'
+                 def combinedContent = changes + "\n\n" + gitDiffOutput
+                 writeFile(file: 'changelog.txt', text: combinedContent)
+                if (gitDiffOutput.isEmpty()) {
+                error("No changes found between commits.")
+            }
+                
+                emailext (
+                    subject: mailSubject,
+                    body: approvalMail,
+                    mimeType: 'text/plain',
+                    to: 'thoshlearn@gmail.com',
+                    attachmentsPattern: 'changelog.txt'
+                    //attachmentsPattern: "${currentBuild.changeSets.fileChanges.file}", // Attach the changelog as a text file
+                    //attachLog: true, // Attach the build log
+                   // replyTo: currentBuild.upstreamBuilds[0]?.actions.find { it instanceof hudson.model.CauseAction }?.cause.upstreamProject
+                )
 
+                // Wait for manager approval
+                timeout(time: 10, unit: 'MINUTES') {
+                    input message: 'Waiting for Manager Approval'
+                }
+                    }
+            }
+        }
           
 
 //         stage('Docker Build'){
