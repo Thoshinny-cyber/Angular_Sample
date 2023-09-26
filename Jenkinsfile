@@ -27,6 +27,9 @@ pipeline{
                 // Send an email notification to the manager for approval
                script{
                  def previousCommit = sh(returnStdout: true, script: 'git rev-parse HEAD~1')
+                  if (previousCommit != 0) {
+                error("Failed to get previous commit hash.")
+            }
                  def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
                  def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
@@ -45,7 +48,9 @@ pipeline{
                  def gitDiffOutput = sh(script: """git diff ${previousCommit} ${currentCommit}""", returnStdout: true).trim()
                  writeFile(file: 'changelog.txt', text: gitDiffOutput)
                   
- 
+                if (gitDiffOutput.isEmpty()) {
+                error("No changes found between commits.")
+            }
                 
                 emailext (
                     subject: mailSubject,
