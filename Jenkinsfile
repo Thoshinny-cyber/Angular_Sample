@@ -8,6 +8,7 @@ pipeline{
     environment {
       DOCKER_TAG = getVersion()
       DOCKER_CRED= credentials('docker_hub1')
+      PREV_HASH = previousHash()
     }
 
     stages{
@@ -45,7 +46,7 @@ pipeline{
                     BUILD URL: ${env.BUILD_URL}
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
-                 def gitDiffOutput = sh(script: "git diff ${previousCommit} ${env.GIT_COMMIT}", returnStdout: true).trim()
+                 def gitDiffOutput = sh(script: "git diff ${env.PREV_HASH} ${env.GIT_COMMIT}", returnStdout: true).trim()
                  writeFile(file: 'changelog.txt', text: gitDiffOutput)
                   
                 if (gitDiffOutput.isEmpty()) {
@@ -223,6 +224,10 @@ pipeline{
 def getVersion(){
     def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
+}
+def previousHash(){
+  def prev = sh returnStdout: true, script: 'git rev-parse --short HEAD~1'
+  return prev
 }
 
 // Function to wait for manager's approval email
