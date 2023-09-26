@@ -8,7 +8,6 @@ pipeline{
     environment {
       DOCKER_TAG = getVersion()
       DOCKER_CRED= credentials('docker_hub1')
-      PREV_HASH = previousHash()
     }
 
     stages{
@@ -32,6 +31,7 @@ pipeline{
             //     error("Failed to get previous commit hash.")
             // }
                  def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+                 def changes =  sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
                  def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
                  def approvalMail = """
                     Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
@@ -47,8 +47,8 @@ pipeline{
                     """
                  def mailSubject =  "Approval Required for Build - ${currentBuild.displayName}"
                  def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
+                 writeFile(file: 'changelog.txt', text: changes)
                  writeFile(file: 'changelog.txt', text: gitDiffOutput)
-                  
                 if (gitDiffOutput.isEmpty()) {
                 error("No changes found between commits.")
             }
@@ -225,13 +225,7 @@ def getVersion(){
     def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
 }
-def previousHash(){
-  def prev = sh(returnStdout: true, script: 'git rev-parse --short HEAD~1', returnStatus: true)
-  if (prev != 0) {
-        error("Failed to get previous commit hash. Exit code: ${prev}")
-    }
-    return prev
-}
+
 
 // Function to wait for manager's approval email
 // def waitForEmailApproval(mailSubject) {
