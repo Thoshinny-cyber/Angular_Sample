@@ -227,7 +227,10 @@ def getVersion(){
 }
 def previousHash(){
   def prev = sh returnStdout: true, script: 'git rev-parse --short HEAD~1'
-  return prev
+  if (prev != 0) {
+        error("Failed to get previous commit hash. Exit code: ${prev}")
+    }
+    return prev
 }
 
 // Function to wait for manager's approval email
