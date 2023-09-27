@@ -222,20 +222,20 @@ def sendApprovalEmail(buildStatus) {
     def approvalMail = """
         Hi Team, <br><br>
         The Build <b> ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed. </b> <br><br>
-        <b> Commit ID: ${env.GIT_COMMIT} </b> <br><br>
-        <b> Previous Commit ID: ${previousCommit} </b> <br><br>
-        <b> Docker tag: ${env.DOCKER_TAG} </b> <br><br>
-        <b> Source Path: ${env.WORKSPACE} </b> <br><br>
-        <b> Author: ${authorEmail} </b> <br><br>
-        <b> Date: ${env.BUILD_TIMESTAMP} </b> <br><br>
-        <b> Build Result: ${buildStatus} </b> <br><br>
+         Commit ID: <b> ${env.GIT_COMMIT} </b> <br><br>
+         Previous Commit ID:  <b> ${previousCommit} </b> <br><br>
+         Docker tag:  <b> ${env.DOCKER_TAG} </b> <br><br>
+         Source Path:  <b> ${env.WORKSPACE} </b> <br><br>
+         Author:  <b> ${authorEmail} </b> <br><br>
+         Date:<b> ${env.BUILD_TIMESTAMP} </b> <br><br>
+         Build Result: <b> ${buildStatus} </b> <br><br>
         Please review and approve or reject this build.
     """
 
     emailext (
         subject: mailSubject,
         body: approvalMail,
-        mimeType: 'text/plain',
+        mimeType: 'text/html;',
         to: 'thoshlearn@gmail.com',
         attachmentsPattern: 'changelog.txt'
     )
@@ -256,21 +256,22 @@ def sendFailureEmail(buildStatus) {
     def combinedContent = changes + "\n\n" + gitDiffOutput
     writeFile(file: 'changelog.txt', text: combinedContent)
     def failureMail = """
-        Build <b> ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. </b> <br><br>
-        <b> Build Result: ${buildStatus} </b> <br><br>
-        <b> Commit ID: ${env.GIT_COMMIT} </b> <br><br>
-        <b> Previous Commit ID: ${previousCommit} </b> <br><br>
-        <b> Source Path: ${env.WORKSPACE} </b> <br><br>
-        <b> Author: ${authorEmail} </b> <br><br>
-        <b> Date: ${env.BUILD_TIMESTAMP} </b> <br><br>
+         Build <b> ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. </b> <br><br>
+         Build Result:  <b> ${buildStatus} </b> <br><br>
+         Commit ID:  <b> ${env.GIT_COMMIT} </b> <br><br>
+         Previous Commit ID:  <b>  ${previousCommit} </b> <br><br>
+         Source Path:  <b>  ${env.WORKSPACE} </b> <br><br>
+         Author: <b>  ${authorEmail} </b> <br><br>
+         Date: <b> ${env.BUILD_TIMESTAMP} </b> <br><br>
     """
 
     emailext (
         subject: mailSubject,
         body: failureMail,
-        mimeType: 'text/plain',
+        mimeType: 'text/html',
         to: 'thoshlearn@gmail.com',
         attachmentsPattern: 'changelog.txt'
+        attachBuildLog: true
     )
 }
 
