@@ -229,7 +229,6 @@ def sendApprovalEmail(buildStatus) {
         Date: ${env.BUILD_TIMESTAMP}
         Build Result: ${buildStatus}
         Please review and approve or reject this build.
-        BUILD URL: ${env.BUILD_URL}
     """
 
     emailext (
@@ -245,17 +244,16 @@ def sendApprovalEmail(buildStatus) {
 
 def sendFailureEmail(buildStatus) {
     // Modify this function to send a failure email for the previous build
-    def previousBuildNumber = currentBuild.number - 1
-    def previousBuildUrl = env.BUILD_URL.replace(env.BUILD_NUMBER, previousBuildNumber.toString())
+    //def previousBuildNumber = currentBuild.number - 1
+    //def previousBuildUrl = env.BUILD_URL.replace(env.BUILD_NUMBER, previousBuildNumber.toString())
     def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
     def changes = sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
-    def mailSubject = "Failure Notification for Previous Build - ${previousBuildNumber}"
+    def mailSubject = "Failure Notification for Build - ${env.BUILD_NUMBER}"
     def combinedContent = changes + "\n\n" + gitDiffOutput
     writeFile(file: 'changelog.txt', text: combinedContent)
     def failureMail = """
-        Build ${env.JOB_NAME} #${previousBuildNumber} has failed.
+        Build ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed.
         Build Result: ${buildStatus}
-        BUILD URL: ${previousBuildUrl}
         attachmentsPattern: 'changelog.txt'
     """
 
