@@ -270,7 +270,7 @@ def sendFailureEmail(buildStatus) {
         body: failureMail,
         mimeType: 'text/html',
         to: 'thoshlearn@gmail.com',
-        attachmentsPattern: 'changelog.txt'
+        attachmentsPattern: 'changelog.txt',
         attachBuildLog: true
     )
 }
