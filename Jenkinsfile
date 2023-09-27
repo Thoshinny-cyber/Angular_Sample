@@ -60,6 +60,7 @@ pipeline{
                 verbose: true
             )
         ])
+                  archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
                   script {
                     if (currentBuild.resultIsBetterOrEqualTo('SUCCESS')) {
                         // Send success email to manager for approval
@@ -256,7 +257,8 @@ def sendFailureEmail(buildStatus) {
     //def combinedContent = changes + "\n\n" + gitDiffOutput
     //writeFile(file: 'changelog.txt', text: combinedContent)
     def failureMail = """
-         Build <b> ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. </b> <br><br>
+         Hi Team, <br><br>
+         The Build <b> ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. </b> <br><br>
          Build Result:  <b> ${buildStatus} </b> <br><br>
          Commit ID:  <b> ${env.GIT_COMMIT} </b> <br><br>
          Previous Commit ID:  <b>  ${previousCommit} </b> <br><br>
@@ -269,9 +271,8 @@ def sendFailureEmail(buildStatus) {
         subject: mailSubject,
         body: failureMail,
         mimeType: 'text/html',
-        to: 'thoshlearn@gmail.com',
-        // attachmentsPattern: 'changelog.txt',
-        attachBuildLog: true
+        to: 'thoshbala@gmail.com',
+        attachmentsPattern: 'build.log',
     )
 }
 
