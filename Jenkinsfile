@@ -246,6 +246,7 @@ def sendFailureEmail(buildStatus) {
     // Modify this function to send a failure email for the previous build
     //def previousBuildNumber = currentBuild.number - 1
     //def previousBuildUrl = env.BUILD_URL.replace(env.BUILD_NUMBER, previousBuildNumber.toString())
+    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
     def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
     def changes = sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
     def mailSubject = "Failure Notification for Build - ${env.BUILD_NUMBER}"
