@@ -30,8 +30,9 @@ pipeline{
             // Proceed with Docker Build stage or other actions after approval
             stage('Docker Build') {
                 steps {
-                    currentBuild.keepLog = true
+                    
                     sh "echo ${DOCKER_TAG}"
+                    
                     // Add your Docker build and push steps here
                             sshPublisher(publishers: [
             sshPublisherDesc(
@@ -63,6 +64,7 @@ pipeline{
         ])
                  
                   script {
+                    currentBuild.keepLog = true
                     if (currentBuild.resultIsBetterOrEqualTo('SUCCESS')) {
                         // Send success email to manager for approval
                         sendApprovalEmail('SUCCESS')
