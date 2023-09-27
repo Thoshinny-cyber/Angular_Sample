@@ -250,11 +250,11 @@ def sendFailureEmail(buildStatus) {
     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
     def previousCommit = sh(returnStdout: true, script: 'git rev-parse HEAD~1')
     def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
-    def changes = sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
+    //def changes = sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
     def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
     def mailSubject = "Failure Notification for Build - ${env.BUILD_NUMBER}"
-    def combinedContent = changes + "\n\n" + gitDiffOutput
-    writeFile(file: 'changelog.txt', text: combinedContent)
+    //def combinedContent = changes + "\n\n" + gitDiffOutput
+    //writeFile(file: 'changelog.txt', text: combinedContent)
     def failureMail = """
          Build <b> ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. </b> <br><br>
          Build Result:  <b> ${buildStatus} </b> <br><br>
@@ -270,7 +270,7 @@ def sendFailureEmail(buildStatus) {
         body: failureMail,
         mimeType: 'text/html',
         to: 'thoshlearn@gmail.com',
-        attachmentsPattern: 'changelog.txt',
+        // attachmentsPattern: 'changelog.txt',
         attachBuildLog: true
     )
 }
