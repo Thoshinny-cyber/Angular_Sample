@@ -67,14 +67,7 @@ pipeline{
                         sendApprovalEmail('SUCCESS')
                     } else {
                         // Send failure email to manager for previous build
-                        def stageLog = currentBuild.rawBuild.getLog(Integer.MAX_VALUE).join('\n')
-                        def startIndex = stageLog.indexOf("Started by user") // You can use a unique marker to identify the start of your stage
-                        def endIndex = stageLog.indexOf("Finished: Docker Build")
-
-                        if (startIndex != -1 && endIndex != -1) {
-                                 def stageLogContent = stageLog.substring(startIndex, endIndex)
-                                 writeFile(file: "build.txt", text: stageLogContent)
-                        }
+                        
                         
                         sendFailureEmail('FAILURE')
                     }
@@ -280,8 +273,8 @@ def sendFailureEmail(buildStatus) {
         subject: mailSubject,
         body: failureMail,
         mimeType: 'text/html',
-        to: 'thoshbala@gmail.com',
-        attachmentsPattern: 'build.txt'
+        to: 'thoshbala@gmail.com'
+        //attachmentsPattern: 'build.txt'
     )
 }
 
