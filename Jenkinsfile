@@ -220,14 +220,15 @@ def sendApprovalEmail(buildStatus) {
     }
 
     def approvalMail = """
-        Build ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed.
-        Commit ID: ${env.GIT_COMMIT}
-        Previous Commit ID: ${previousCommit}
-        Docker tag: ${env.DOCKER_TAG}
-        Source Path: ${env.WORKSPACE}
-        Author: ${authorEmail}
-        Date: ${env.BUILD_TIMESTAMP}
-        Build Result: ${buildStatus}
+        Hi Team, <br><br>
+        The Build <b> ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed. </b> <br><br>
+        <b> Commit ID: ${env.GIT_COMMIT} </b> <br><br>
+        <b> Previous Commit ID: ${previousCommit} </b> <br><br>
+        <b> Docker tag: ${env.DOCKER_TAG} </b> <br><br>
+        <b> Source Path: ${env.WORKSPACE} </b> <br><br>
+        <b> Author: ${authorEmail} </b> <br><br>
+        <b> Date: ${env.BUILD_TIMESTAMP} </b> <br><br>
+        <b> Build Result: ${buildStatus} </b> <br><br>
         Please review and approve or reject this build.
     """
 
@@ -247,15 +248,20 @@ def sendFailureEmail(buildStatus) {
     //def previousBuildNumber = currentBuild.number - 1
     //def previousBuildUrl = env.BUILD_URL.replace(env.BUILD_NUMBER, previousBuildNumber.toString())
     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+    def previousCommit = sh(returnStdout: true, script: 'git rev-parse HEAD~1')
     def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
     def changes = sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
     def mailSubject = "Failure Notification for Build - ${env.BUILD_NUMBER}"
     def combinedContent = changes + "\n\n" + gitDiffOutput
     writeFile(file: 'changelog.txt', text: combinedContent)
     def failureMail = """
-        Build ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed.
-        Build Result: ${buildStatus}
-        attachmentsPattern: 'changelog.txt'
+        Build <b> ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. </b> <br><br>
+        <b> Build Result: ${buildStatus} </b> <br><br>
+        <b> Commit ID: ${env.GIT_COMMIT} </b> <br><br>
+        <b> Previous Commit ID: ${previousCommit} </b> <br><br>
+        <b> Source Path: ${env.WORKSPACE} </b> <br><br>
+        <b> Author: ${authorEmail} </b> <br><br>
+        <b> Date: ${env.BUILD_TIMESTAMP} </b> <br><br>
     """
 
     emailext (
@@ -263,6 +269,7 @@ def sendFailureEmail(buildStatus) {
         body: failureMail,
         mimeType: 'text/plain',
         to: 'thoshlearn@gmail.com'
+        attachmentsPattern: 'changelog.txt'
     )
 }
 
