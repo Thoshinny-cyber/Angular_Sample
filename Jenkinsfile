@@ -268,7 +268,7 @@ def sendFailureEmail(buildStatus) {
         subject: mailSubject,
         body: failureMail,
         mimeType: 'text/plain',
-        to: 'thoshlearn@gmail.com'
+        to: 'thoshlearn@gmail.com',
         attachmentsPattern: 'changelog.txt'
     )
 }
