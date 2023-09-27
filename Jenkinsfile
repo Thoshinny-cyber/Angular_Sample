@@ -30,6 +30,7 @@ pipeline{
             // Proceed with Docker Build stage or other actions after approval
             stage('Docker Build') {
                 steps {
+                    currentBuild.keepLog = true
                     sh "echo ${DOCKER_TAG}"
                     // Add your Docker build and push steps here
                             sshPublisher(publishers: [
@@ -256,7 +257,7 @@ def sendFailureEmail(buildStatus) {
     //def changes = sh(script: 'git show --name-status HEAD^', returnStdout: true).trim()
     def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
     def mailSubject = "Failure Notification for Build - ${env.BUILD_NUMBER}"
-    def errorMessage = currentBuild.description
+    def errorMessage = currentBuild.getLog(currentBuild.numberOfBuilds).join('\n')
     writeFile (file: 'error.log', text: errorMessage)
     //def combinedContent = changes + "\n\n" + gitDiffOutput
     //writeFile(file: 'changelog.txt', text: combinedContent)
