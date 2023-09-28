@@ -260,7 +260,7 @@ def sendFailureEmail(buildStatus) {
     def authorEmail = sh(script: 'git log -1 --format="%ae"', returnStdout: true).trim()
     def mailSubject = "Failure Notification for Build - ${env.BUILD_NUMBER}"
     def errorMessage = currentBuild.rawBuild.getLogFile()
-    writeFile (file: 'error.log', text: errorMessage)
+    //writeFile (file: 'error.log', text: errorMessage)
     //def combinedContent = changes + "\n\n" + gitDiffOutput
     //writeFile(file: 'changelog.txt', text: combinedContent)
     def failureMail = """
@@ -279,7 +279,7 @@ def sendFailureEmail(buildStatus) {
         body: failureMail,
         mimeType: 'text/html',
         to: 'thoshbala@gmail.com',
-        attachmentsPattern: 'error.log'
+        attachmentsPattern: 'errorMessage.txt'
     )
 }
 
