@@ -242,7 +242,7 @@ def sendApprovalEmail(buildStatus) {
         subject: mailSubject,
         body: approvalMail,
         mimeType: 'text/html;',
-        to: 'thoshlearn@gmail.com',
+        to: 'thoshaws04@gmail.com',
         attachmentsPattern: 'changelog.txt'
     )
   timeout(time: 10, unit: 'MINUTES') {
