@@ -241,7 +241,7 @@ def sendApprovalEmail(buildStatus) {
     emailext (
         subject: mailSubject,
         body: approvalMail,
-        mimeType: 'text/html;',
+        mimeType: 'text/html',
         to: 'thoshaws04@gmail.com',
         attachmentsPattern: 'changelog.txt'
     )
