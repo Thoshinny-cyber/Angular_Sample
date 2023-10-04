@@ -245,7 +245,7 @@ def sendApprovalEmail(buildStatus) {
         to: 'thoshaws04@gmail.com',
         attachmentsPattern: 'changelog.txt'
     )
-  timeout(time: 10, unit: 'MINUTES') {
+  timeout(time: 2, unit: 'MINUTES') {
                   input message: 'Waiting for Manager Approval'                }
 }
 
