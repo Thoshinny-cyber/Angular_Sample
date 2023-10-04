@@ -217,14 +217,14 @@ def sendApprovalEmail(buildStatus) {
 
     def mailSubject = "SUCCESS Notification - Approval Required for Docker Deployment - ${currentBuild.displayName}"
     def gitDiffOutput = sh(script: "git diff HEAD~1 ${currentCommit}", returnStdout: true)
-
+    if (gitDiffOutput.isEmpty()) {
+        gitDiffOutput ="No changes found between commits."
+    }
     // Combine 'changes' and 'gitDiffOutput' and write to 'changelog.txt'
     def combinedContent = changes + "\n\n" + gitDiffOutput
     writeFile(file: 'changelog.txt', text: combinedContent)
 
-    if (gitDiffOutput.isEmpty()) {
-        error("No changes found between commits.")
-    }
+
 
     def approvalMail = """
         Hi Team, <br><br>
