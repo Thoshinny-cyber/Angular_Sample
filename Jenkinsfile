@@ -64,7 +64,7 @@ pipeline{
         ])
                  
                   script {
-                    currentBuild.keepLog = true
+                    //currentBuild.keepLog = true
                     if (currentBuild.resultIsBetterOrEqualTo('SUCCESS')) {
                         // Send success email to manager for approval
                         sendApprovalEmail('SUCCESS')
