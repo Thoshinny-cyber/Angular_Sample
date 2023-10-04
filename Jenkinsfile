@@ -228,7 +228,7 @@ def sendApprovalEmail(buildStatus) {
 
     def approvalMail = """
         Hi Team, <br><br>
-        The Build <b> ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed. </b> <br><br>
+        The Build <b> ${env.BUILD_NUMBER} of ${env.JOB_NAME} has completed the docker build and need approval for deployment. </b> <br><br>
          Commit ID: <b> ${env.GIT_COMMIT} </b> <br><br>
          Previous Commit ID:  <b> ${previousCommit} </b> <br><br>
          Docker tag:  <b> ${env.DOCKER_TAG} </b> <br><br>
@@ -236,7 +236,7 @@ def sendApprovalEmail(buildStatus) {
          Author:  <b> ${authorEmail} </b> <br><br>
          Date:<b> ${env.BUILD_TIMESTAMP} </b> <br><br>
          Build Result: <b> ${buildStatus} </b> <br><br>
-        Please review and approve or reject this build.
+        Please review and approve or reject the deployment.
     """
 
     emailext (
